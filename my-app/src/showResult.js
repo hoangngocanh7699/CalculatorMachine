@@ -1,14 +1,13 @@
-import { useState } from "react"
 
-function ShowResult ({currentNumber}) {
+function ShowResult ({topResult,topDisplay}) {
 
     return (
         <div className="screen">
             <div className="math">
-                {currentNumber}
+                {topDisplay}
             </div>
             <div className="result">
-                {currentNumber}
+                {topResult}
             </div>
         </div>
     )

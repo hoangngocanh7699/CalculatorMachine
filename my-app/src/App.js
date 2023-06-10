@@ -1,15 +1,17 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon, Button } from "semantic-ui-react";
 import Number from "./number";
 import ShowResult from "./showResult";
+import { Calculate, Call } from "./designPatten";
 
 function App() {
   const [currentNumber, setcurrentNumber] = useState(0);
-  const [first, setFirst] = useState({ value: '' })
-  const [second, setSecond] = useState({ value: '' })
+  const [topResult, setTopResult] = useState(0)
+  const [topDisplay, setTopDisplay] = useState()
+  const [first] = useState({ value: '' })
+  const [second] = useState({ value: '' })
   const [historyLog, setHistoryLog] = useState([])
-  console.log('tessttt');
 
   const [isOpen, setIsopen] = useState(false);
   const [history, setHistory] = useState(false)
@@ -21,6 +23,8 @@ function App() {
   const showHistory = () => {
     history === true ? setHistory(false) : setHistory(true)
   }
+
+  const [reCall, setReCall] = useState(false);
 
   return (
     <div className="App">
@@ -51,7 +55,8 @@ function App() {
                   <div className="sd-body">
                     <ul>
                       <li><a className="sd-link">Standard</a></li>
-                      <li><a className="sd-link">Information</a></li>
+                      <li><a className="sd-link">Information
+                      </a></li>
                     </ul>
                   </div>
                 </div>
@@ -67,36 +72,28 @@ function App() {
                       {historyLog.map(x => <><div>{x.spe} {x.result}</div><br></br></>)}
                     </div>
                   </div>
-                  <Button className="trashbtn" onClick={()=>{setHistoryLog([])}}>
+                  <Button className="trashbtn" onClick={() => { setHistoryLog([]) }}>
                     <Icon name="trash alternate"></Icon>
                   </Button>
                 </div>
               </Button>
             </div>
           </div>
-          <ShowResult currentNumber={currentNumber} />
-          <Number currentNumber={currentNumber} setcurrentNumber={setcurrentNumber} firstNumber={first} secondNumber={second} handleResult={(e) => {
-            let result = 0
-            switch (e) {
-              case "+":
-                result = parseInt(first.value) + parseInt(second.value);
-                break;
-              case "-":
-                result = parseInt(first.value) - parseInt(second.value);
-                break;
-              case "x":
-                result = parseInt(first.value) * parseInt(second.value);
+          <ShowResult currentNumber={currentNumber} topResult={topResult} topDisplay={topDisplay}/>
+          <Number setTopDisplay={setTopDisplay} topDisplay={topDisplay} setTopResult={setTopResult} reCall={reCall} currentNumber={currentNumber} 
+          setcurrentNumber={setcurrentNumber} firstNumber={first} secondNumber={second} handleResult={(e,reCallBool) => {
+            
+            var call = new Call();
+            var calculate = new Calculate();
 
-                break;
-              case "/":
-                result = parseInt(first.value) / parseInt(second.value);
-                break;
-              default:
-                break;
-            }
+            calculate.set(call)
+            let result = calculate.get({one: parseInt(first.value), two:parseInt(second.value), value: e})
             setHistoryLog([...historyLog, { spe: first.value + " " + e + " " + second.value + " =", result: result }])
             first.value = result
-            setcurrentNumber(result)
+            setTopDisplay(result)
+            setTopResult(result)
+
+            if(reCallBool) setReCall(!reCall)
           }} />
         </div>
       </header>

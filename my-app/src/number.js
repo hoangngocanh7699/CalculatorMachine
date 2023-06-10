@@ -1,99 +1,134 @@
-import { useState } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react"
 import { Icon } from "semantic-ui-react"
 
-function Number({ currentNumber, setcurrentNumber, firstNumber, secondNumber ,handleResult}) {
-    const [firstNum] = useState({ value: true })
-    const [calculator] = useState({value:''})
+function Number({ topDisplay, setTopDisplay,setTopResult ,currentNumber, setcurrentNumber, firstNumber, secondNumber, handleResult, reCall }) {
+    const [firstNumberum] = useState({ value: true })
+    const [calculator] = useState({ value: '' })
+
+    useEffect(()=>{
+        if(calculator.value != '')
+        clickNumber(calculator.value)
+    },[reCall])
+
     const clickNumber = (e) => {
-        let submitNum = e.target.innerText
-        
+        let submitNum = e?.target?.innerText || e
+            
         if (submitNum === '=') {
             handleResult(calculator.value)
-           
-            calculator.value = '';
+            calculator.value = submitNum;
             secondNumber.value = ''
-            firstNum.value = true;
-            return ;
+            firstNumberum.value = true;
+            return;
         }
         if (!['+', '-', 'x', '/'].includes(submitNum)) {
-            if (firstNum.value) {
+            if (firstNumberum.value) {
                 firstNumber.value = firstNumber.value + '' + submitNum
             } else {
-                secondNumber.value = secondNumber.value  + '' + submitNum
+                secondNumber.value = secondNumber.value + '' + submitNum
             }
-        }else{
-            if(!firstNum.value) return
+
+            setTopResult(x => {
+                let newNumber = x + '' + submitNum
+                if (x === 0) {
+                    newNumber = submitNum
+                }
+                return newNumber
+            } )
+        } else {
+            setTopResult(0)
+            if (!firstNumberum.value){
+                handleResult(calculator.value,true)
+                calculator.value = submitNum;
+                secondNumber.value = ''
+                firstNumberum.value = true;
+                return;
+            }
             calculator.value = submitNum
-            firstNum.value = false
+            firstNumberum.value = false
+
+           
         }
         let newNumber = currentNumber + '' + submitNum
         if (currentNumber === 0) {
             newNumber = submitNum
         }
+        setTopDisplay(newNumber)
         setcurrentNumber(newNumber)
     }
 
     const handleDelete = () => {
         firstNumber.value = ''
         secondNumber.value = ''
-        firstNum.value = true
+        firstNumberum.value = true
         setcurrentNumber(0)
+        setTopDisplay()
+        setTopResult(0)
     }
 
     const handleDeleteOneNumber = () => {
 
-        if (currentNumber === 0) {
+        if (topDisplay === 0) {
             return
         }
 
-        let newNumber = currentNumber.slice(0, -1)
-        if (currentNumber === '') {
+        let newNumber = topDisplay.slice(0, -1)
+        if (topDisplay === '') {
             newNumber = 0
         }
-        setcurrentNumber(newNumber)
+        setTopDisplay(newNumber)
+        setTopResult(newNumber)
     }
-
+    const arrButton = [
+        [
+            { text: '%' },
+            { text: 'CE' },
+            { text: 'C', onClick: handleDelete },
+            { text: <Icon name='window close'></Icon>, onClick: handleDeleteOneNumber },
+        ],
+        [
+            { text: '1/x' },
+            { text: <Icon name='superscript'></Icon>, },
+            { text: '123', },
+            { text: '/' },
+        ],
+        [
+            { text: '7' },
+            { text: '8' },
+            { text: '9' },
+            { text: 'x' },
+        ],
+        [
+            { text: '4' },
+            { text: '5' },
+            { text: '6' },
+            { text: '-' },
+        ],
+        [
+            { text: '1' },
+            { text: '2' },
+            { text: '3' },
+            { text: '+' },
+        ],
+        [
+            { text: '+/-' },
+            { text: '0' },
+            { text: '.' },
+            { text: '=' },
+        ]
+    ]
 
     return (
         <div>
             <table>
                 <tbody>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>%</td>
-                        <td className="td1" onClick={clickNumber}>CE</td>
-                        <td className="td1" onClick={handleDelete}>C</td>
-                        <td className="td1" onClick={handleDeleteOneNumber}><Icon name='window close'></Icon></td>
-                    </tr>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>1/x</td>
-                        <td className="td1" onClick={clickNumber}><Icon name='superscript'></Icon></td>
-                        <td className="td1" onClick={clickNumber}>123</td>
-                        <td className="td1" onClick={clickNumber}>/</td>
-                    </tr>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>7</td>
-                        <td className="td1" onClick={clickNumber}>8</td>
-                        <td className="td1" onClick={clickNumber}>9</td>
-                        <td className="td1" onClick={clickNumber}>x</td>
-                    </tr>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>4</td>
-                        <td className="td1" onClick={clickNumber}>5</td>
-                        <td className="td1" onClick={clickNumber}>6</td>
-                        <td className="td1" onClick={clickNumber}>-</td>
-                    </tr>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>1</td>
-                        <td className="td1" onClick={clickNumber}>2</td>
-                        <td className="td1" onClick={clickNumber}>3</td>
-                        <td className="td1" onClick={clickNumber}>+</td>
-                    </tr>
-                    <tr>
-                        <td className="td1" onClick={clickNumber}>+/-</td>
-                        <td className="td1" onClick={clickNumber}>0</td>
-                        <td className="td1" onClick={clickNumber}>.</td>
-                        <td className="td1" onClick={clickNumber}>=</td>
-                    </tr>
+                    {arrButton.map(tr =>
+                        <tr>
+                            {tr.map(td =>
+                                <td className="td1" onClick={td.onClick ? td.onClick : clickNumber}>
+                                    {td.text}
+                                </td>)}
+                        </tr>)}
                 </tbody>
             </table>
         </div>
